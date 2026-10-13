@@ -84,7 +84,7 @@ public class SecurityConfig {
             .securityMatcher("/**")
             // CSRF permanece activado por defecto para protección contra ataques CSRF en navegadores
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/registro", "/css/**", "/js/**", "/images/**", "/error").permitAll()
+                .requestMatchers("/login", "/registro", "/test-api.html", "/css/**", "/js/**", "/images/**", "/error").permitAll()
                 // Protección de rutas administrativas exclusivas para ROLE_ADMIN
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 // Todas las demás rutas web requieren sesión iniciada

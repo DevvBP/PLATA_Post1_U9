@@ -38,8 +38,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            final String token = authHeader.substring(7);
+        if (authHeader != null && authHeader.trim().toLowerCase().startsWith("bearer ")) {
+            String token = authHeader.trim().substring(7).trim();
+            // Sanitización: por si el cliente envía accidentalmente "Bearer Bearer ..." o comillas
+            while (token.toLowerCase().startsWith("bearer ")) {
+                token = token.substring(7).trim();
+            }
+            if (token.startsWith("\"") && token.endsWith("\"") && token.length() > 2) {
+                token = token.substring(1, token.length() - 1).trim();
+            }
 
             // Requisito: NO debe lanzar excepción si falla, solo omitir la autenticación
             try {
