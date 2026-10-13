@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Seguridad Web</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <span class="badge-tag">Spring Security 6</span>
+                <h1>Iniciar Sesión</h1>
+                <p>Laboratorio de Coexistencia: Sesión Web y JWT</p>
+            </div>
+
+            <!-- Alertas de estado -->
+            <div th:if="${param.error}" class="alert alert-danger" id="alert-error">
+                <span>⚠️ Credenciales inválidas. Comprueba tu correo y contraseña.</span>
+            </div>
+
+            <div th:if="${param.logout}" class="alert alert-info" id="alert-logout">
+                <span>🔒 Has cerrado sesión de manera segura.</span>
+            </div>
+
+            <div th:if="${param.denied}" class="alert alert-warning" id="alert-denied">
+                <span>🚫 Acceso denegado: no tienes permisos suficientes.</span>
+            </div>
+
+            <div th:if="${mensajeExito}" class="alert alert-success" id="alert-success">
+                <span th:text="${mensajeExito}">¡Operación completada con éxito!</span>
+            </div>
+
+            <!-- Formulario de Login -->
+            <form th:action="@{/login}" method="post" id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="username">Correo Electrónico</label>
+                    <input type="email" 
+                           id="username" 
+                           name="username" 
+                           class="form-control" 
+                           placeholder="ejemplo@seguridad.com" 
+                           required 
+                           autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Contraseña</label>
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           class="form-control" 
+                           placeholder="••••••••" 
+                           required>
+                </div>
+
+                <!-- El token CSRF es añadido automáticamente por Thymeleaf al usar th:action -->
+
+                <button type="submit" class="btn btn-primary" id="btn-login">
+                    Ingresar al Sistema
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>¿No tienes una cuenta aún? <a th:href="@{/registro}" id="link-registro">Regístrate aquí</a></p>
+                <div style="margin-top: 15px; font-size: 0.8rem; color: var(--text-muted);">
+                    <strong>Cuentas demo de prueba:</strong><br>
+                    Usuario: <code>user@seguridad.com</code> / <code>user123</code><br>
+                    Admin: <code>admin@seguridad.com</code> / <code>admin123</code>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

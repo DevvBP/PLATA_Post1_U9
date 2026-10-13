@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - Seguridad Web</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Barra de Navegación Superior -->
+    <header class="navbar">
+        <a th:href="@{/dashboard}" class="navbar-brand">
+            <span class="badge-tag" style="margin-bottom: 0;">App Segura</span>
+            <span>Gestor de Tareas</span>
+        </a>
+
+        <div class="navbar-user">
+            <!-- 
+            =============================================================================
+            DEMOSTRACIÓN DE PREVENCIÓN CONTRA CROSS-SITE SCRIPTING (XSS) EN THYMELEAF
+            =============================================================================
+            VERSIÓN SEGURA (Implementada):
+            'th:text' aplica escape automático de entidades HTML (&lt;, &gt;, &amp;, &quot;).
+            Si el usuario ingresa un nombre malicioso como:
+               <script>alert('Ataque XSS!')</script>
+            el navegador lo renderizará como texto plano inocuo, mitigando el ataque XSS (CWE-79).
+            -->
+            <div class="user-badge">
+                <span>Hola,</span>
+                <strong class="user-name-safe" th:text="${usuario.nombre}">Nombre de Usuario</strong>
+                <span class="role-pill" 
+                      th:classappend="${usuario.rol == 'ROLE_ADMIN' ? 'role-admin' : 'role-user'}" 
+                      th:text="${usuario.rol}">ROLE_USER</span>
+            </div>
+
+            <!-- 
+            =============================================================================
+            VERSIÓN VULNERABLE A XSS (COMENTADA CON FINES DIDÁCTICOS DEL LABORATORIO):
+            Si se utilizara 'th:utext' (Unescaped Text), Thymeleaf insertaría el contenido crudo
+            directamente en el Document Object Model (DOM) sin ningún saneamiento.
+            Esto permitiría la ejecución arbitraria de JavaScript en el navegador del usuario:
+
+            <span class="user-name-vulnerable" th:utext="${usuario.nombre}">Nombre Vulnerable</span>
+            =============================================================================
+            -->
+
+            <!-- Enlace al panel de administración (visible solo para administradores) -->
+            <a th:if="${usuario.rol == 'ROLE_ADMIN'}" 
+               th:href="@{/admin/panel}" 
+               class="btn btn-secondary" 
+               style="padding: 8px 14px; font-size: 0.85rem;" 
+               id="btn-admin-panel">
+               🛡️ Panel Admin
+            </a>
+
+            <!-- Formulario de Cierre de Sesión Seguro (Protegido por CSRF) -->
+            <form th:action="@{/logout}" method="post" style="display: inline;" id="form-logout">
+                <button type="submit" class="btn btn-secondary" style="padding: 8px 14px; font-size: 0.85rem;" id="btn-logout">
+                    Cerrar Sesión
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <main class="app-container">
+        <!-- Notificaciones Flash -->
+        <div th:if="${mensajeExito}" class="alert alert-success" id="alert-exito">
+            <span th:text="${mensajeExito}">Operación exitosa</span>
+        </div>
+        <div th:if="${error}" class="alert alert-danger" id="alert-error">
+            <span th:text="${error}">Error</span>
+        </div>
+
+        <!-- Banner Explicativo de Seguridad (Spring Security 6) -->
+        <section class="security-banner">
+            <h3>Laboratorio Spring Security 6: Coexistencia Dual</h3>
+            <p style="color: var(--text-secondary); margin-top: 4px;">
+                Esta sesión web está protegida mediante <strong>webFilterChain (@Order 2)</strong> con 
+                gestión de sesiones tradicional y protección CSRF activa.
+            </p>
+            <div class="security-grid">
+                <div class="security-card">
+                    <h4>🔒 Prevención XSS</h4>
+                    <p>El nombre de usuario se renderiza con <code>th:text</code>, garantizando el escape estricto de cualquier inyección HTML/JS maliciosa.</p>
+                </div>
+                <div class="security-card">
+                    <h4>🛡️ Prevención SQLi</h4>
+                    <p>El buscador de tareas ejecuta una consulta <code>@Query</code> con parámetros vinculados, impidiendo inyecciones SQL.</p>
+                </div>
+                <div class="security-card">
+                    <h4>⚡ Coexistencia API REST</h4>
+                    <p>La API en <code>/api/**</code> opera bajo <code>apiFilterChain (@Order 1)</code>, completamente Stateless con tokens JWT.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Formulario para Agregar Tarea -->
+        <section class="create-task-panel">
+            <h2 style="font-size: 1.25rem; margin-bottom: 16px;">Crear Nueva Tarea</h2>
+            <form th:action="@{/tareas/crear}" th:object="${nuevaTarea}" method="post" id="form-crear-tarea">
+                <div style="display: grid; grid-template-columns: 1fr 2fr auto; gap: 12px; align-items: start;">
+                    <div>
+                        <input type="text" 
+                               th:field="*{titulo}" 
+                               class="form-control" 
+                               placeholder="Título de la tarea *" 
+                               required 
+                               id="input-titulo-tarea">
+                    </div>
+                    <div>
+                        <input type="text" 
+                               th:field="*{descripcion}" 
+                               class="form-control" 
+                               placeholder="Descripción detallada de la tarea" 
+                               id="input-desc-tarea">
+                    </div>
+                    <div>
+                        <button type="submit" class="btn btn-primary" style="width: auto; padding: 12px 24px;" id="btn-guardar-tarea">
+                            + Agregar Tarea
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- Barra de Búsqueda y Encabezado de Tareas -->
+        <div class="dashboard-header">
+            <div>
+                <h2>Mis Tareas Asignadas</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                    Total registradas: <span th:text="${#lists.size(tareas)}">0</span>
+                </p>
+            </div>
+
+            <!-- Búsqueda Segura (SQL Injection Protected) -->
+            <form th:action="@{/dashboard}" method="get" class="search-box" id="form-buscar-tarea">
+                <input type="text" 
+                       name="buscar" 
+                       th:value="${buscar}" 
+                       class="form-control" 
+                       placeholder="Buscar por título..." 
+                       id="input-buscar">
+                <button type="submit" class="btn btn-secondary" id="btn-buscar">
+                    Buscar
+                </button>
+                <a th:if="${buscar != null and !buscar.isEmpty()}" 
+                   th:href="@{/dashboard}" 
+                   class="btn btn-secondary" 
+                   title="Limpiar filtro">✕</a>
+            </form>
+        </div>
+
+        <!-- Listado de Tareas -->
+        <div th:if="${#lists.isEmpty(tareas)}" class="empty-state">
+            <h3>No se encontraron tareas</h3>
+            <p>Comienza agregando una nueva tarea en el panel superior.</p>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(tareas)}" class="tasks-grid">
+            <div th:each="t : ${tareas}" 
+                 class="task-card" 
+                 th:classappend="${t.completada ? 'completed' : 'pending'}"
+                 th:id="'tarea-' + ${t.id}">
+                <div>
+                    <h3 th:text="${t.titulo}">Título de la Tarea</h3>
+                    <p th:text="${t.descripcion != null and !t.descripcion.isEmpty() ? t.descripcion : 'Sin descripción adicional'}">
+                        Descripción de la tarea
+                    </p>
+                </div>
+
+                <div class="task-footer">
+                    <div>
+                        <span th:if="${t.completada}" class="role-pill" style="background: var(--success-light); color: #34d399;">
+                            ✓ Completada
+                        </span>
+                        <span th:unless="${t.completada}" class="role-pill" style="background: var(--warning-light); color: #fbbf24;">
+                            ⏳ Pendiente
+                        </span>
+                    </div>
+
+                    <div class="task-actions">
+                        <!-- Alternar estado completado/pendiente -->
+                        <form th:action="@{'/tareas/' + ${t.id} + '/toggle'}" method="post" style="display:inline;">
+                            <button type="submit" 
+                                    class="btn" 
+                                    th:classappend="${t.completada ? 'btn-secondary' : 'btn-success'}"
+                                    th:title="${t.completada ? 'Marcar como pendiente' : 'Marcar como completada'}">
+                                <span th:text="${t.completada ? 'Desmarcar' : 'Completar'}">Acción</span>
+                            </button>
+                        </form>
+
+                        <!-- Eliminar tarea -->
+                        <form th:action="@{'/tareas/' + ${t.id} + '/eliminar'}" method="post" style="display:inline;">
+                            <button type="submit" 
+                                    class="btn btn-danger" 
+                                    onclick="return confirm('¿Estás seguro de eliminar esta tarea?');" 
+                                    title="Eliminar tarea">
+                                🗑️
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
