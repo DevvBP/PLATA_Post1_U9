@@ -1,11 +1,52 @@
-# Carpeta de Evidencias y Capturas de Pantalla
+# 📸 Galería de Evidencias - Laboratorio Spring Security 6
 
-En esta carpeta debes guardar las capturas de pantalla de la ejecución del laboratorio:
+Esta carpeta contiene las capturas de pantalla que sustentan la ejecución, verificación de seguridad y pruebas de la aplicación **seguridad-web**.
 
-1. `01_login_y_registro.png`: Formulario de login y registro de usuarios.
-2. `02_dashboard_sesion.png`: Panel del usuario con sesiones web y prevención XSS (`th:text`).
-3. `03_busqueda_sqli_segura.png`: Búsqueda de tareas usando `@Query` parametrizado.
-4. `04_control_acceso_admin.png`: Acceso restringido a `/admin/panel` con `ROLE_ADMIN`.
-5. `05_api_jwt_login.png`: Solicitud `POST /api/auth/login` en Postman obteniendo el token Bearer.
-6. `06_api_jwt_tareas.png`: Solicitud `GET /api/tareas` con header `Authorization: Bearer <token>`.
-7. `07_base_de_datos_mysql.png`: Tablas `usuarios` y `tareas` creadas en MySQL (`seguridad_db`).
+---
+
+## 1. Autenticación Web y Form Login
+Demostración del formulario de inicio de sesión gestionado por `webFilterChain (@Order 2)` con protección CSRF activa:
+
+![Formulario de Login](Evidencia1.png)
+
+---
+
+## 2. Panel de Control y Sesiones Web (Dashboard)
+Sesión autenticada para el usuario estándar (`user@seguridad.com`), mostrando la bienvenida y las tareas asignadas:
+
+![Panel de Tareas del Usuario](PanelTareas2.png)
+
+---
+
+## 3. Prevención de Cross-Site Scripting (XSS)
+Inspección en el navegador (DevTools) demostrando el escape estricto de HTML mediante `th:text`:
+
+![Inspección de Prevención XSS](Evidencia3.png)
+
+---
+
+## 4. Búsqueda Segura y Mitigación de SQL Injection
+Búsqueda de tareas por título ejecutada a través de `@Query` parametrizado con `PreparedStatement`:
+
+![Búsqueda Segura de Tareas](TareasAsignadas4.png)
+
+---
+
+## 5. Control de Acceso Basado en Roles (`hasRole('ADMIN')`)
+Demostración del acceso restringido a `/admin/panel` exclusivo para usuarios con `ROLE_ADMIN`:
+
+![Panel de Administración Exclusivo](PanelAdm5.png)
+
+---
+
+## 6. Autenticación Stateless y Generación de Token JWT
+Solicitud `POST /api/auth/login` validando credenciales y retornando el token JWT firmado con HMAC:
+
+![Autenticación JWT en Postman](PruebaPost1.png)
+
+---
+
+## 7. Consulta Protegida con Bearer Token JWT
+Solicitud `GET /api/tareas` autenticada mediante el filtro `JwtAuthFilter` y retornando las tareas en formato JSON:
+
+![Consulta a la API REST con JWT](Preubas2.png)

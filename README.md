@@ -145,3 +145,21 @@ curl -X POST http://localhost:8080/api/tareas \
    ./mvnw spring-boot:run
    ```
 3. Abrir el navegador en: `http://localhost:8080/login`
+
+---
+
+## 📸 Evidencias de Ejecución del Laboratorio
+
+Todas las capturas de pantalla de prueba y validación de seguridad se encuentran documentadas en la carpeta [`evidencias/`](evidencias/):
+
+| Evidencia | Descripción | Captura |
+| :--- | :--- | :--- |
+| **01. Login Web** | Formulario de sesión web con CSRF activo | [Ver Captura](evidencias/Evidencia1.png) |
+| **02. Dashboard** | Panel de tareas bajo sesión de usuario | [Ver Captura](evidencias/PanelTareas2.png) |
+| **03. Prevención XSS** | Escape seguro con `th:text` en DevTools | [Ver Captura](evidencias/Evidencia3.png) |
+| **04. Mitigación SQLi** | Búsqueda segura con `@Query` parametrizado | [Ver Captura](evidencias/TareasAsignadas4.png) |
+| **05. Panel Admin** | Control de acceso restringido `ROLE_ADMIN` | [Ver Captura](evidencias/PanelAdm5.png) |
+| **06. Token JWT** | Generación de token JWT en `/api/auth/login` | [Ver Captura](evidencias/PruebaPost1.png) |
+| **07. API Protegida** | Consulta `/api/tareas` con Bearer Token | [Ver Captura](evidencias/Preubas2.png) |
+
+Para ver el reporte completo con imágenes desplegadas, consulte [evidencias/README.md](evidencias/README.md).
